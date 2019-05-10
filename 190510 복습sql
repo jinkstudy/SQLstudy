@@ -1,0 +1,127 @@
+
+CREATE TABLE gogek(
+id varchar(8),
+name varchar(10) not null,
+tel varchar(12),
+CONSTRAINT pk_gogek_id PRIMARY KEY (id)
+);
+
+ALTER TABLE gogek 
+ADD CONSTRAINT uq_gogek_tel UNIQUE (tel);
+
+CREATE TABLE sangpum(
+no varchar(6),
+title varchar(20) not null,
+detail varchar(40),
+count number(5) not null,
+price number(10),
+CONSTRAINT pk_sangpum_no PRIMARY KEY (no)
+);
+
+
+CREATE TABLE jumun(
+no varchar(4),
+gogek varchar(8),
+sangpum varchar(6),
+count number(5),
+jumunil varchar(10),
+CONSTRAINT pk_jumun_no PRIMARY KEY (no),
+CONSTRAINT pk_jumun_gogek FOREIGN KEY(gogek)REFERENCES gogek (id),
+CONSTRAINT pk_jumun_sangpum FOREIGN KEY(sangpum)REFERENCES sangpum (no)
+);
+ 
+INSERT INTO gogek ( id, name, tel ) VALUES('babo1234','홍길동', '031-333-3333' );
+INSERT INTO gogek ( id, name, tel ) VALUES('babo1111','김길동', '031-111-1111' );
+INSERT INTO gogek ( id, name, tel ) VALUES('babo2222','홍길동', '031-222-2222' );
+INSERT INTO gogek ( id, name, tel ) VALUES('babo9999','박길동', '031-333-3333' ); -- 에러! tel unique 처리 해줌.
+INSERT INTO gogek ( id, name, tel ) VALUES('babo1234','맹길동', '031-999-9999' );  -- 에러! id가 pk인데 겹친다.
+INSERT INTO gogek ( id, name, tel ) VALUES('babo12345','이길동', '031-333-1234' ); -- 에러! id의 자료형이 맞지 않음.
+INSERT INTO gogek ( id, name, tel ) VALUES('123','최길동', '031-999-9999' ); 
+INSERT INTO gogek ( id, name ) VALUES('babo','봉길동' );
+INSERT INTO gogek ( id, tel ) VALUES('babo1988','031-888-8888' ); -- 에러! name이 not null 조건인데 입력하지 않았음.
+
+DELETE FROM gogek WHERE name ='박길동';
+
+INSERT INTO sangpum ( no, title, count,price, detail ) VALUES ('A00001','이쁜바지', 30, 1000, '싸고이뻐서 금방 다 팔릴 바지입니다' );
+INSERT INTO sangpum ( no, title, count,price, detail ) VALUES ('A00002','그냥바지', 20, 500, '그냥이뻐고 편안한 바지입니다' );
+INSERT INTO sangpum ( no, title, count )VALUES ('B00009','윗도리', 20 );
+INSERT INTO sangpum ( no, title, count,price ) VALUES ('Z0001','비싼코트', 3, 20000, '겁나 비싼코트입니다' ); --에러! detail 입력한다고 정의하지 않음.
+INSERT INTO sangpum VALUES ('Z00001','비싼코트2', 5, 20000, '겁나 비싼 코트입니다' ); -- 에러!key값 지정안됨.순서오류
+INSERT INTO sangpum VALUES ('Z00001','비싼코트3','겁나 비싼 코트입니다', 5, 20000);
+
+ select*from jumun;
+ select*from sangpum;
+ select*from gogek;
+
+INSERT INTO jumun(no, gogek, sangpum,count, jumunil) VALUES ( 1000, 'babo1234', 'A00001', 1, '2016/09/09' );
+INSERT INTO jumun(no, gogek, sangpum,count, jumunil) VALUES ( 1001, 'babo1233', 'Z00001', 1, '2016/09/09' ); --gogek table의 id 참조하는데 babo1233이 없음.
+INSERT INTO jumun(no, gogek, sangpum,count, jumunil) VALUES ( 1002, 'Babo1234', 'A00002', 2, '2016/09/10' ); --gogek table의 id 참조하는데 Babo1234이 없음. 대소문자 구분.
+
+INSERT INTO jumun(no, gogek, sangpum,count, jumunil) VALUES ( 1003, 'babo1234', 'B00001', 1, '2016/09/11' );--sangpum table의 no 참조하는데 B00001이 없음.
+INSERT INTO jumun(no, gogek, sangpum,count, jumunil) VALUES ( 1004, 'babo', 'Z00001', 1, '2016/10/11' );
+INSERT INTO jumun(no, gogek, sangpum,count, jumunil) VALUES ( 1005, 'babo1234', 'B00009', 1, '2016/11/11' );
+INSERT INTO jumun(no, gogek, sangpum,count, jumunil) VALUES ( 1006, 'babo1234', 'B00009', 1, '2016/12/12' );
+
+
+
+--3) 데이터 변경 및 검색
+
+--전화번호가 없는 고객은 누구인지 고객명을 검색하세요
+SELECT name
+From gogek
+where tel is null;
+
+--홍씨 성을 가진 고객들의 정보를 검색하세요
+SELECT *
+From gogek
+--where regexp_like(name,'^[홍]');
+where name like '홍%';
+
+--babo2222 고객명을 박길동으로 변경하세요
+
+UPDATE gogek set name ='박길동' where id='babo2222';
+
+--아이디 123 고객의 아이디를 babo123 으로 변경하세요
+UPDATE gogek set id ='babo123' where id='123';
+
+--봉길동씨의 전화번호 02-555-5555를 추가하세요
+UPDATE gogek set tel = '02-555-5555' where name = '봉길동'; 
+
+--상품번호 B00009 에 가격 1200원 그리고 “겁나 쌕시한 옷입니다”라는 상품설명을 추가하세요
+
+UPDATE sangpum set price=1200,detail='겁나 쌕시한 옷입니다'  where no = 'B00009';
+
+--이쁜바지 상품이 10개가 팔렸습니다.
+
+UPDATE sangpum set count = count-10 where no = 'A00001';
+
+--Z00001 상품이 3개가 더 입고 되었습니다.
+UPDATE sangpum set count=count + 3  where no = 'Z00001'; 
+
+--상품 가격이 1000원을 넘는 상품들을 검색하세요
+SELECT *
+FROM sangpum
+where price>1000;
+
+--11월 이후에 주문한 상품 번호를 검색하세요
+SELECT no
+FROM jumun
+where jumunil>'2016/10/31';
+
+--babo 고객이 주문한 상품을 A00002로 변경하고 수량을 2개로 수정하세요
+UPDATE jumun set sangpum='A00002',count=2 where gogek='babo';
+--babo1234 고객이 11월에 주문한 상품 번호을 검색하세요
+SELECT sangpum
+From jumun
+where gogek='babo1234' and jumunil>'2016/10/31' and jumunil<'2016/12/1';
+
+-- 아래 처럼 할 수도 있다.
+--AND Jumunil BETWEEN TO_DATE('2016-11-01', 'YYYY-MM-DD') AND TO_DATE('2016-11-30', 'YYYY-MM-DD');
+--SELECT No, Sangpum FROM jumun WHERE gogek = 'babo1234' AND Jumunil LIKE '2016/11/%';
+
+--B00009 상품을 주문한 고객 아이디를 검색하세요
+
+SELECT distinct gogek --distinct 를 쓰면 중복검색 안됨.
+From jumun
+where sangpum='B00009';
+ 
