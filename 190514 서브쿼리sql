@@ -1,0 +1,56 @@
+--전체 사원들 중 평균급여보다 낮은 급여를 받는 사원의 명단을 조회
+
+--평균구하기
+SELECT AVG (SAL) FROM emp;
+
+-- 평균급여보다 낮은 급여를 받는 사원의 명단
+-- 평균을 구하는 QUERY 자체를 QUERY 안에 넣는다.
+SELECT empno, ename, sal
+FROM emp
+WHERE sal <( SELECT AVG (SAL) FROM emp);
+
+
+-- 월급을 가장 많이 받는 사람의 정보를 조회하기
+
+-- 최고 월급 구하기.
+SELECT MAX(SAL) MAX FROM EMP;
+
+-- 최고 월급 받는 사람의 정보 구하기.
+SELECT EMPNO, ENAME, SAL
+FROM EMP
+WHERE SAL = (SELECT MAX(SAL) MAX FROM EMP);
+
+-- 평균급여보다 높고 최대 급여보다 낮은 월급을 받는 사원 명단 조회
+SELECT EMPNO, ENAME, SAL
+FROM EMP
+WHERE SAL > ( SELECT AVG (SAL) FROM emp) AND SAL < (SELECT MAX(SAL) MAX FROM EMP);
+
+SELECT EMPNO, ENAME, SAL
+FROM EMP e1, ( SELECT AVG (SAL) avg, MAX(SAL) MAX FROM EMP ) e2
+WHERE e1.sal > e2.avg AND e1.sal < e2.max;
+
+-- 월급순으로 상위 10명의 명단을 출력
+
+SELECT ENAME,SAL FROM EMP ORDER BY NVL(SAL,0) DESC;
+
+SELECT *
+FROM ( 
+    SELECT ENAME,
+    SAL FROM EMP 
+    ORDER BY NVL(SAL,0) DESC
+    ) 
+WHERE  rownum<=10;
+
+
+-- 위에 결과와 다른 결과
+-- 먼저 10개 뽑은 후에 정렬함.
+
+SELECT *
+FROM emp
+WHERE  rownum<=10
+ORDER BY nvl(sal,0) DESC;
+
+
+
+
+
