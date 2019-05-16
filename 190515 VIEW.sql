@@ -41,4 +41,12 @@ SELECT * FROM dept_sum;
 --원본테이블 수정시 view도 자동 업데이트 됨.
 INSERT INTO emp(empno,ename,sal,deptno) Values(8890,'홍홍홍',10000,20);       
 
-          
+
+DELETE FROM v_EMP_INFO WHERE EMPNO = 8888;
+SELECT * FROM v_emp_INFO;
+SELECT * FROM EMP;
+
+
+
+SELECT ROWNUM, EMPNO,ENAME,JOB, ROWID
+FROM EMP;
